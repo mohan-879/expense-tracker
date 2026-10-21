@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+ENV/
+env/
+.venv
+*.sqlite3
+instance/
+backend/uploads/*
+!backend/uploads/.gitkeep
+!backend/uploads/receipts/.gitkeep
+!backend/uploads/payment_proofs/.gitkeep
+!backend/uploads/sponsor_logos/.gitkeep
+
+# Node
+node_modules/
+dist/
+dist-ssr/
+*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Ignore environment secrets
+.env
+.env.*
+!.env.example
+
+# Ignore environment secrets
+.env
+.env.*
+!.env.example
