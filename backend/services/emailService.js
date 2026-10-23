@@ -413,6 +413,130 @@ const notifyAdminNewUserRegisteredEmail = async ({ newUser, recipientEmails = []
   }
 };
 
+/**
+ * Send User Login Credentials Email (When Admin creates an account)
+ */
+const sendUserCredentialsEmail = async ({ to, name, username, email, password, role, clubRole, department }) => {
+  try {
+    const portalUrl = process.env.FRONTEND_URL || 'http://localhost:3000/login';
+    const userName = name || username || 'Member';
+    const roleLabel = role ? role.replace(/_/g, ' ') : 'MEMBER';
+
+    const htmlContent = getEmailWrapper(
+      'Account Created - Login Credentials',
+      'linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%)',
+      `
+      <h2 style="font-size: 18px; color: #0f172a; margin-top: 0;">Welcome to DSCLUB Expense Tracker!</h2>
+      <p>Hello <strong>${userName}</strong>,</p>
+      <p>An official user account has been created for you by the <strong>System Administrator</strong> on the <strong>DSClub Expense & Reimbursement Tracker</strong> portal.</p>
+      
+      <p>You can now sign in using the login credentials below:</p>
+
+      <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; padding: 18px; margin: 20px 0;">
+        <div style="padding: 8px 0; border-bottom: 1px solid #e2e8f0;">
+          <span style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase;">Portal Sign-In:</span>
+          <div style="margin-top: 3px;"><a href="${portalUrl}" style="color: #2563eb; font-weight: 600; text-decoration: underline; font-size: 13px;">${portalUrl}</a></div>
+        </div>
+        <div style="padding: 8px 0; border-bottom: 1px solid #e2e8f0;">
+          <span style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase;">Login Email Address:</span>
+          <div style="margin-top: 3px; font-size: 13px; font-weight: 700; color: #0f172a; font-family: monospace;">${email}</div>
+        </div>
+        <div style="padding: 8px 0; border-bottom: 1px solid #e2e8f0;">
+          <span style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase;">Username:</span>
+          <div style="margin-top: 3px; font-size: 13px; font-weight: 700; color: #0f172a; font-family: monospace;">@${username}</div>
+        </div>
+        <div style="padding: 8px 0; border-bottom: 1px solid #e2e8f0;">
+          <span style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase;">Temporary Password:</span>
+          <div style="margin-top: 4px;">
+            <span style="font-size: 16px; font-weight: 900; color: #dc2626; font-family: monospace; letter-spacing: 1px; background: #fee2e2; border: 1px solid #fecaca; padding: 4px 12px; border-radius: 6px; display: inline-block;">${password}</span>
+          </div>
+        </div>
+        <div style="padding: 8px 0; border-bottom: 1px solid #e2e8f0;">
+          <span style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase;">System Role:</span>
+          <div style="margin-top: 3px; font-size: 13px; font-weight: 700; color: #0f172a;">${roleLabel} ${clubRole ? `(${clubRole})` : ''}</div>
+        </div>
+        ${department ? `
+        <div style="padding: 8px 0;">
+          <span style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase;">Department:</span>
+          <div style="margin-top: 3px; font-size: 13px; font-weight: 600; color: #0f172a;">${department}</div>
+        </div>` : ''}
+      </div>
+
+      <div style="text-align: center; margin: 25px 0;">
+        <a href="${portalUrl}" style="display: inline-block; background: #2563eb; color: #ffffff; padding: 12px 28px; border-radius: 10px; font-weight: 700; font-size: 14px; text-decoration: none; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);">
+          Sign In to DSClub Portal
+        </a>
+      </div>
+
+      <p style="font-size: 12px; color: #64748b; margin-top: 20px; line-height: 1.5;">
+        <strong>Security Notice:</strong> Please keep these credentials confidential. If you ever forget your password, you can use the <strong>Forgot Password</strong> option on the sign-in page to receive a 6-digit OTP verification code via this email address.
+      </p>
+      `
+    );
+
+    return await sendEmail({
+      to,
+      subject: `[DSClub] Your Portal Account Credentials - ${userName}`,
+      htmlContent,
+    });
+  } catch (error) {
+    console.error('[Brevo Email] sendUserCredentialsEmail error:', error.message);
+    return { success: false, error: error.message };
+  }
+};
+
+/**
+ * Send User Password Reset by Admin Notification Email
+ */
+const sendUserPasswordResetByAdminEmail = async ({ to, name, email, newPassword, adminName }) => {
+  try {
+    const portalUrl = process.env.FRONTEND_URL || 'http://localhost:3000/login';
+    const userName = name || 'Member';
+
+    const htmlContent = getEmailWrapper(
+      'Password Updated by Administrator',
+      'linear-gradient(135deg, #0f172a 0%, #334155 100%)',
+      `
+      <h2 style="font-size: 18px; color: #0f172a; margin-top: 0;">Password Reset Notification</h2>
+      <p>Hello <strong>${userName}</strong>,</p>
+      <p>Your password for the <strong>DSClub Expense Tracker</strong> account (<strong>${email}</strong>) has been updated by <strong>${adminName || 'System Administrator'}</strong>.</p>
+      
+      <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; padding: 18px; margin: 20px 0;">
+        <div style="padding: 8px 0; border-bottom: 1px solid #e2e8f0;">
+          <span style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase;">Login Email Address:</span>
+          <div style="margin-top: 3px; font-size: 13px; font-weight: 700; color: #0f172a; font-family: monospace;">${email}</div>
+        </div>
+        <div style="padding: 8px 0;">
+          <span style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase;">New Password:</span>
+          <div style="margin-top: 4px;">
+            <span style="font-size: 16px; font-weight: 900; color: #dc2626; font-family: monospace; letter-spacing: 1px; background: #fee2e2; border: 1px solid #fecaca; padding: 4px 12px; border-radius: 6px; display: inline-block;">${newPassword}</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="text-align: center; margin: 25px 0;">
+        <a href="${portalUrl}" style="display: inline-block; background: #2563eb; color: #ffffff; padding: 12px 28px; border-radius: 10px; font-weight: 700; font-size: 14px; text-decoration: none;">
+          Sign In Now
+        </a>
+      </div>
+
+      <p style="font-size: 12px; color: #64748b; margin-top: 20px;">
+        If you did not request this change, please contact the administrator immediately.
+      </p>
+      `
+    );
+
+    return await sendEmail({
+      to,
+      subject: `[DSClub] Your Account Password Was Updated`,
+      htmlContent,
+    });
+  } catch (error) {
+    console.error('[Brevo Email] sendUserPasswordResetByAdminEmail error:', error.message);
+    return { success: false, error: error.message };
+  }
+};
+
 module.exports = {
   sendEmail,
   notifyExpenseSubmittedEmail,
@@ -420,4 +544,6 @@ module.exports = {
   sendPasswordResetOtpEmail,
   notifyUserApprovalStatusEmail,
   notifyAdminNewUserRegisteredEmail,
+  sendUserCredentialsEmail,
+  sendUserPasswordResetByAdminEmail,
 };

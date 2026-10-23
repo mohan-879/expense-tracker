@@ -1,0 +1,15 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/(dashboard)/layout,_N_T_/(dashboard)/events/layout,_N_T_/(dashboard)/events/page,_N_T_/events"
+  },
+  "routeCache": {
+    "key": "/route-cache/APP_PAGE/35e1479b3e056ca2ff9c8b205915d697fc4ca2e8b1ce1c403b2f0e69244711f2/$/events",
+    "owner": {
+      "kind": "APP_PAGE",
+      "sourceRoute": "/(dashboard)/events/page"
+    },
+    "isFallback": false
+  }
+}

@@ -28,7 +28,35 @@ Whenever new modifications, bug fixes, or features are introduced to this codeba
 
 ---
 
-### [Version 1.3.6] – 2026-10-21 *(Latest Release)*
+### [Version 1.3.7] – 2026-10-22 *(Latest Release)*
+
+#### 🎯 Summary of Changes
+- **Automated Login Credentials Email on User Creation**:
+  - When an Administrator creates a user profile in Users & Approvals (`POST /api/users`), a branded notification email is automatically dispatched to the recipient's email address via Brevo API containing their username, registered email address, temporary password, and portal sign-in link.
+  - Added notification email dispatch when Administrator manually resets a user's password in the admin panel.
+  - Updated Add User modal with an informative notice indicating that credentials will be emailed upon creation.
+- **Interactive 2-Step OTP Verification for Forgot Password**:
+  - Re-enabled dynamic email-based password recovery on the login screen (`/login`).
+  - **Step 1 (Request OTP)**: User enters their registered email; a 6-digit numeric verification OTP is generated, saved with a 10-minute expiry window, and emailed to their inbox.
+  - **Step 2 (Verify OTP & Set New Password)**: User inputs the 6-digit OTP code, sets a new password with interactive Show/Hide password toggles, and resets their password securely.
+  - On successful reset, user is immediately redirected to the sign-in screen with their email prefilled.
+
+#### 🛠️ Key Modifications & Components Affected
+- **Backend**:
+  - [`backend/services/emailService.js`](file:///e:/expense/backend/services/emailService.js): Added `sendUserCredentialsEmail` and `sendUserPasswordResetByAdminEmail` templates and exports.
+  - [`backend/controllers/userController.js`](file:///e:/expense/backend/controllers/userController.js): Hooked automated email dispatch into `createUser` and `resetPassword`.
+  - [`backend/controllers/authController.js`](file:///e:/expense/backend/controllers/authController.js): Connected `forgotPassword` endpoint to `requestPasswordResetOtp` and `resetPasswordOtp`.
+- **Frontend**:
+  - [`frontend/src/app/(auth)/login/page.js`](file:///e:/expense/frontend/src/app/(auth)/login/page.js): Built interactive 2-step OTP verification UI with OTP input, resend button, and password toggles.
+  - [`frontend/src/app/(dashboard)/users/page.js`](file:///e:/expense/frontend/src/app/(dashboard)/users/page.js): Added automatic email notification callout to Add User and Reset Password modals.
+
+#### 🧪 Verification & Testing
+- Tested `POST /api/auth/forgot-password` endpoint: verified 6-digit OTP generation and Brevo delivery (HTTP 200).
+- Ran browser automated subagent to navigate to `/login`, trigger "Forgot password?", and verify all Step 1 and Step 2 UI elements.
+
+---
+
+### [Version 1.3.6] – 2026-10-21
 
 #### 🎯 Summary of Changes
 - **Complete Site-Wide Removal of User Identity Chip & Role Badges from Navigation**:

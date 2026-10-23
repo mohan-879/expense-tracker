@@ -1,0 +1,15 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/(dashboard)/layout,_N_T_/(dashboard)/payment-queue/layout,_N_T_/(dashboard)/payment-queue/page,_N_T_/payment-queue"
+  },
+  "routeCache": {
+    "key": "/route-cache/APP_PAGE/ae34d03919b2134cab682c67488658498f16868335ce6709f5eb04b2c46437ba/$/payment-queue",
+    "owner": {
+      "kind": "APP_PAGE",
+      "sourceRoute": "/(dashboard)/payment-queue/page"
+    },
+    "isFallback": false
+  }
+}

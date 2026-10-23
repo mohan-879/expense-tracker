@@ -233,7 +233,10 @@ export default function UsersPage() {
           phone: '',
           photo: '',
         });
-        setMessage({ type: 'success', text: 'New user created successfully (pre-approved).' });
+        setMessage({
+          type: 'success',
+          text: `New user ${payload.email} created successfully! An email with their login credentials has been sent.`,
+        });
         fetchUsers();
       }
     } catch (err) {
@@ -1359,6 +1362,13 @@ export default function UsersPage() {
                 />
               </FormField>
 
+              <div className="p-3 bg-blue-50 border border-blue-200 rounded-xl text-xs text-blue-800 flex items-start gap-2.5">
+                <span className="text-sm flex-shrink-0 mt-0.5">✉️</span>
+                <span className="leading-relaxed">
+                  <strong>Automatic Email Notification:</strong> When created, an email containing their username, registered email, assigned role, and temporary password will be sent automatically to <strong>{formData.email || "the user's email address"}</strong>.
+                </span>
+              </div>
+
               <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
                 <Button variant="outline" type="button" onClick={() => setShowAddModal(false)}>
                   Cancel
@@ -1574,6 +1584,11 @@ export default function UsersPage() {
                   </button>
                 </div>
               </FormField>
+              <div className="p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-600 flex items-center gap-2">
+                <span>✉️</span>
+                <span>The user will be notified of their new password via email at <strong>{selectedUser?.email}</strong>.</span>
+              </div>
+
               <div className="flex justify-end gap-2 pt-2">
                 <Button variant="outline" type="button" onClick={() => setShowResetModal(false)}>
                   Cancel

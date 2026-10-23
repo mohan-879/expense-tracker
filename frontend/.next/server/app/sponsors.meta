@@ -1,0 +1,15 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/(dashboard)/layout,_N_T_/(dashboard)/sponsors/layout,_N_T_/(dashboard)/sponsors/page,_N_T_/sponsors"
+  },
+  "routeCache": {
+    "key": "/route-cache/APP_PAGE/e543b67e059d1501d129c4c5b05847c26ea446bee47f888453d6962d4191b2bc/$/sponsors",
+    "owner": {
+      "kind": "APP_PAGE",
+      "sourceRoute": "/(dashboard)/sponsors/page"
+    },
+    "isFallback": false
+  }
+}

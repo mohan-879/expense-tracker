@@ -77,16 +77,9 @@ export default function LoginPage() {
     }
   };
 
-  // Quick Demo fill
-  const handleQuickLogin = (demoEmail, demoPassword) => {
-    setEmail(demoEmail);
-    setPassword(demoPassword);
-    setError('');
-  };
-
-  // Handle Request Admin Reset (Manual Reset Policy)
-  const handleRequestAdminReset = async (e) => {
-    e.preventDefault();
+  // Handle Request Password Reset OTP
+  const handleSendOtp = async (e) => {
+    if (e) e.preventDefault();
     setError('');
     setSuccessMsg('');
     setLoading(true);
@@ -94,285 +87,371 @@ export default function LoginPage() {
     try {
       const res = await API.post('/auth/forgot-password', { email: forgotEmail });
       if (res.data.success) {
+        setForgotStep(2);
         setSuccessMsg(
-          res.data.message ||
-          'Your reset request has been logged and sent to the Administrator. Please contact the Admin to complete the manual verification and receive your new credentials.'
+          res.data.message || `A 6-digit OTP code has been sent to ${forgotEmail}. Please check your inbox.`
         );
       }
     } catch (err) {
-      setError(err.response?.data?.message || err.message || 'Failed to submit reset request to administrator.');
+      setError(err.response?.data?.message || err.message || 'Failed to send OTP code. Please verify your email.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle Verify OTP & Reset Password
+  const handleVerifyOtpAndReset = async (e) => {
+    e.preventDefault();
+    setError('');
+    setSuccessMsg('');
+
+    if (newPassword.length < 6) {
+      setError('Password must be at least 6 characters long');
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setError('Passwords do not match. Please re-enter.');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const res = await API.post('/auth/reset-password-otp', {
+        email: forgotEmail,
+        otp: otp.trim(),
+        newPassword,
+      });
+
+      if (res.data.success) {
+        setSuccessMsg('Your password has been successfully reset! You can now sign in with your new password.');
+        setEmail(forgotEmail);
+        setPassword('');
+        setOtp('');
+        setNewPassword('');
+        setConfirmPassword('');
+        setForgotStep(1);
+        setMode('login');
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || err.message || 'Failed to reset password. Please check your OTP code.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col justify-center py-10 sm:px-6 lg:px-8">
-      {/* College & Club Branding Header */}
-      <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
-        <div className="relative w-20 h-20 rounded-full overflow-hidden border-4 border-cyan-500 shadow-xl shadow-cyan-500/20 mx-auto bg-slate-950">
-          <img
-            src="/logo.jpg"
-            alt="Data Science Club Logo"
-            className="w-full h-full object-cover"
-          />
+    <div className="min-h-screen min-h-[100dvh] bg-slate-100 flex flex-col justify-center py-6 sm:py-10 px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-md mx-auto my-auto flex flex-col justify-center">
+        {/* College & Club Branding Header */}
+        <div className="w-full text-center">
+          <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-[3px] sm:border-4 border-cyan-500 shadow-lg sm:shadow-xl shadow-cyan-500/20 mx-auto bg-slate-950">
+            <img
+              src="/logo.jpg"
+              alt="Data Science Club Logo"
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <h2 className="mt-3 sm:mt-4 text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+            DSCLUB EXPENSE TRACKER
+          </h2>
+          <p className="mt-1 text-[11px] sm:text-xs font-semibold text-cyan-700 uppercase tracking-wide sm:tracking-wider px-2">
+            Data Science Club – Empowering the Future with AI
+          </p>
         </div>
-        <h2 className="mt-4 text-2xl font-black text-slate-900 tracking-tight">
-          DSCLUB EXPENSE TRACKER
-        </h2>
-        <p className="mt-1 text-xs font-semibold text-cyan-700 uppercase tracking-wider">
-          Data Science Club – Empowering the Future with AI
-        </p>
-      </div>
 
-      <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-6 shadow-xl rounded-2xl border border-slate-200/80 sm:px-10">
+        <div className="mt-4 sm:mt-6 w-full">
+          <div className="bg-white py-6 px-5 sm:py-8 sm:px-10 shadow-xl rounded-2xl border border-slate-200/80">
 
-          {/* Success Banner */}
-          {successMsg && (
-            <div className="mb-6 p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl flex items-start gap-2.5 text-xs text-emerald-800 font-semibold">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
-              <span>{successMsg}</span>
-            </div>
-          )}
-
-          {/* Error Banner */}
-          {error && (
-            <div className="mb-6 p-3.5 bg-rose-50 border border-rose-200 rounded-xl flex items-start gap-2.5 text-xs text-rose-700 font-semibold">
-              <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
-              <span>{error}</span>
-            </div>
-          )}
-
-          {/* ========================================================================= */}
-          {/* 1. SIGN IN MODE                                                           */}
-          {/* ========================================================================= */}
-          {mode === 'login' && (
-            <>
-              <div className="mb-6 text-center">
-                <h3 className="text-lg font-bold text-slate-900">Sign In to Your Account</h3>
-                <p className="text-xs text-slate-500 mt-1">Enter your credentials to access the expense portal</p>
+            {/* Success Banner */}
+            {successMsg && (
+              <div className="mb-4 sm:mb-6 p-3 sm:p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl flex items-start gap-2.5 text-xs text-emerald-800 font-semibold">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
+                <span className="break-words">{successMsg}</span>
               </div>
+            )}
 
-              <form className="space-y-4" onSubmit={handleSubmit}>
-                <FormField label="Email Address" required>
-                  <Input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="user@clubfund.edu"
-                    required
-                  />
-                </FormField>
+            {/* Error Banner */}
+            {error && (
+              <div className="mb-4 sm:mb-6 p-3 sm:p-3.5 bg-rose-50 border border-rose-200 rounded-xl flex items-start gap-2.5 text-xs text-rose-700 font-semibold">
+                <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                <span className="break-words">{error}</span>
+              </div>
+            )}
 
-                <div className="space-y-1">
-                  <div className="flex items-center justify-between">
-                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
-                      Password <span className="text-rose-500">*</span>
-                    </label>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setError('');
-                        setSuccessMsg('');
-                        setForgotEmail(email);
-                        setForgotStep(1);
-                        setMode('forgot');
-                      }}
-                      className="text-xs font-semibold text-blue-600 hover:text-blue-800 transition-colors"
-                    >
-                      Forgot password?
-                    </button>
-                  </div>
-                  <div className="relative">
-                    <Input
-                      type={showPassword ? 'text' : 'password'}
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="••••••••"
-                      required
-                      className="pr-10"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 transition-colors p-1"
-                      tabIndex={-1}
-                      title={showPassword ? 'Hide password' : 'View password'}
-                    >
-                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
-                  </div>
+            {/* ========================================================================= */}
+            {/* 1. SIGN IN MODE                                                           */}
+            {/* ========================================================================= */}
+            {mode === 'login' && (
+              <>
+                <div className="mb-4 sm:mb-6 text-center">
+                  <h3 className="text-base sm:text-lg font-bold text-slate-900">Sign In to Your Account</h3>
+                  <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5 sm:mt-1">Enter your credentials to access the expense portal</p>
                 </div>
 
-                <Button
-                  type="submit"
-                  variant="primary"
-                  size="lg"
-                  className="w-full font-bold shadow-md shadow-blue-500/20 mt-2"
-                  loading={loading}
-                >
-                  Sign In to DSCLUB Portal
-                </Button>
-              </form>
-
-              {/* No dynamic creation notice */}
-              <div className="mt-5 p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-center">
-                <p className="text-xs text-slate-600 font-medium leading-relaxed">
-                  <strong>Account Policy:</strong> New accounts are created exclusively by the <strong>System Administrator</strong>. Public sign-up is disabled. Please contact the Admin or Faculty Coordinator to receive login access.
-                </p>
-              </div>
-
-              {/* Quick Demo Credentials Switcher */}
-              <div className="mt-6 pt-5 border-t border-slate-200">
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider text-center mb-2.5">
-                  Quick Role Login (Click to fill)
-                </p>
-                <div className="grid grid-cols-2 gap-2 text-xs font-semibold">
-                  <button
-                    type="button"
-                    onClick={() => handleQuickLogin('admin@clubfund.edu', 'admin123')}
-                    className="p-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg text-slate-700 text-left transition-colors"
-                  >
-                    🔴 Admin
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleQuickLogin('faculty@clubfund.edu', 'faculty1')}
-                    className="p-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg text-slate-700 text-left transition-colors"
-                  >
-                    🟣 Faculty
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleQuickLogin('treasurer@clubfund.edu', 'treas123')}
-                    className="p-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg text-slate-700 text-left transition-colors"
-                  >
-                    🟡 Treasurer
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleQuickLogin('financer@clubfund.edu', 'finance1')}
-                    className="p-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg text-slate-700 text-left transition-colors"
-                  >
-                    🟢 Financer
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleQuickLogin('arun@clubfund.edu', 'member12')}
-                    className="col-span-2 p-2 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg text-blue-700 text-center transition-colors"
-                  >
-                    🔵 Member (Arun)
-                  </button>
-                </div>
-              </div>
-            </>
-          )}
-
-          {/* ========================================================================= */}
-          {/* 2. MANUAL FORGOT PASSWORD & ADMIN CONTACT                                  */}
-          {/* ========================================================================= */}
-          {mode === 'forgot' && (
-            <div>
-              <div className="flex items-center gap-2 mb-4">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setError('');
-                    setSuccessMsg('');
-                    setMode('login');
-                  }}
-                  className="p-1 text-slate-500 hover:text-slate-800 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
-                >
-                  <ArrowLeft className="w-4 h-4" />
-                </button>
-                <div>
-                  <h3 className="text-base font-bold text-slate-900">
-                    Manual Password Reset
-                  </h3>
-                  <p className="text-[11px] text-slate-500">
-                    Contact Administrator to change account password manually
-                  </p>
-                </div>
-              </div>
-
-              {/* Policy Notice Box */}
-              <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-900 space-y-2 mb-4">
-                <div className="flex items-center gap-1.5 font-bold text-amber-800">
-                  <ShieldCheck className="w-4 h-4 flex-shrink-0" />
-                  <span>Security & Audit Policy</span>
-                </div>
-                <p className="leading-relaxed">
-                  Dynamic self-service password resets are disabled. All credentials must be verified and changed <strong>manually by the System Administrator</strong>.
-                </p>
-              </div>
-
-              {/* Administrator Contact Details */}
-              <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2.5 text-xs text-slate-700 mb-4">
-                <p className="font-bold text-slate-900 text-xs uppercase tracking-wider">
-                  Administrator Contact Details:
-                </p>
-                <div className="space-y-1 text-xs">
-                  <p>
-                    <strong>Email:</strong>{' '}
-                    <a href="mailto:admin@clubfund.edu" className="text-blue-600 font-mono hover:underline">
-                      admin@clubfund.edu
-                    </a>
-                  </p>
-                  <p>
-                    <strong>Department:</strong> Panimalar Data Science Club & Computer Science
-                  </p>
-                  <p>
-                    <strong>Office Location:</strong> Department Admin Desk / Faculty Coordinator Office
-                  </p>
-                </div>
-                <p className="text-[11px] text-slate-500 italic pt-1 border-t border-slate-200">
-                  The admin will manually verify your identity in the Users management panel and update your credentials.
-                </p>
-              </div>
-
-              {/* Request form to alert administrator */}
-              <form onSubmit={handleRequestAdminReset} className="space-y-3.5">
-                <FormField label="Your Registered Email Address" required helpText="Enter your email to alert the Administrator for a manual reset">
-                  <div className="relative">
+                <form className="space-y-3.5 sm:space-y-4" onSubmit={handleSubmit}>
+                  <FormField label="Email Address" required>
                     <Input
                       type="email"
-                      value={forgotEmail}
-                      onChange={(e) => setForgotEmail(e.target.value)}
-                      placeholder="yourname@clubfund.edu"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="user@clubfund.edu"
                       required
-                      className="pl-9"
                     />
-                    <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+                  </FormField>
+
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between">
+                      <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                        Password <span className="text-rose-500">*</span>
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setError('');
+                          setSuccessMsg('');
+                          setForgotEmail(email);
+                          setForgotStep(1);
+                          setMode('forgot');
+                        }}
+                        className="text-xs font-semibold text-blue-600 hover:text-blue-800 transition-colors"
+                      >
+                        Forgot password?
+                      </button>
+                    </div>
+                    <div className="relative">
+                      <Input
+                        type={showPassword ? 'text' : 'password'}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="••••••••"
+                        required
+                        className="pr-10"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 transition-colors p-1"
+                        tabIndex={-1}
+                        title={showPassword ? 'Hide password' : 'View password'}
+                      >
+                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
                   </div>
-                </FormField>
 
-                <Button
-                  type="submit"
-                  variant="primary"
-                  size="lg"
-                  className="w-full font-bold shadow-md shadow-blue-500/20"
-                  loading={loading}
-                >
-                  <KeyRound className="w-4 h-4 mr-2" /> Notify Administrator for Reset
-                </Button>
-              </form>
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    size="lg"
+                    className="w-full font-bold shadow-md shadow-blue-500/20 mt-2"
+                    loading={loading}
+                  >
+                    Sign In to DSCLUB Portal
+                  </Button>
+                </form>
+              </>
+            )}
 
-              <div className="text-center pt-4">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setError('');
-                    setSuccessMsg('');
-                    setMode('login');
-                  }}
-                  className="text-xs font-semibold text-slate-500 hover:text-slate-800 cursor-pointer"
-                >
-                  Return to Sign In
-                </button>
+            {/* ========================================================================= */}
+            {/* 2. FORGOT PASSWORD (OTP VERIFICATION VIA EMAIL)                           */}
+            {/* ========================================================================= */}
+            {mode === 'forgot' && (
+              <div>
+                {/* Header */}
+                <div className="flex items-center gap-2 mb-4 sm:mb-5">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setError('');
+                      setSuccessMsg('');
+                      if (forgotStep === 2) {
+                        setForgotStep(1);
+                      } else {
+                        setMode('login');
+                      }
+                    }}
+                    className="p-1.5 text-slate-500 hover:text-slate-800 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
+                    title="Go Back"
+                  >
+                    <ArrowLeft className="w-4 h-4" />
+                  </button>
+                  <div>
+                    <h3 className="text-sm sm:text-base font-bold text-slate-900">
+                      {forgotStep === 1 ? 'Reset Your Password' : 'Enter Verification OTP'}
+                    </h3>
+                    <p className="text-[11px] text-slate-500">
+                      {forgotStep === 1
+                        ? 'We will send a 6-digit OTP code to your registered email'
+                        : `Enter the code sent to ${forgotEmail}`}
+                    </p>
+                  </div>
+                </div>
+
+                {/* STEP 1: Enter Email */}
+                {forgotStep === 1 && (
+                  <form onSubmit={handleSendOtp} className="space-y-3.5 sm:space-y-4">
+                    <div className="p-3 sm:p-3.5 bg-blue-50 border border-blue-200 rounded-xl text-xs text-blue-900 space-y-1">
+                      <p className="font-semibold flex items-center gap-1.5 text-blue-800">
+                        <Mail className="w-3.5 h-3.5" /> Email Verification
+                      </p>
+                      <p className="text-[11px] text-blue-700 leading-relaxed">
+                        Enter your account email address. A one-time password (OTP) will be sent to your inbox to securely reset your credentials.
+                      </p>
+                    </div>
+
+                    <FormField label="Registered Email Address" required>
+                      <div className="relative">
+                        <Input
+                          type="email"
+                          value={forgotEmail}
+                          onChange={(e) => setForgotEmail(e.target.value)}
+                          placeholder="yourname@clubfund.edu"
+                          required
+                          className="pl-9"
+                        />
+                        <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+                      </div>
+                    </FormField>
+
+                    <Button
+                      type="submit"
+                      variant="primary"
+                      size="lg"
+                      className="w-full font-bold shadow-md shadow-blue-500/20"
+                      loading={loading}
+                    >
+                      <KeyRound className="w-4 h-4 mr-2" /> Send 6-Digit OTP Code
+                    </Button>
+                  </form>
+                )}
+
+                {/* STEP 2: Enter OTP & New Password */}
+                {forgotStep === 2 && (
+                  <form onSubmit={handleVerifyOtpAndReset} className="space-y-3.5 sm:space-y-4">
+                    {/* Email confirmation chip */}
+                    <div className="flex items-center justify-between p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs gap-2">
+                      <div className="min-w-0 flex-1 truncate">
+                        <span className="text-slate-500 text-[11px]">OTP sent to:</span>{' '}
+                        <strong className="text-slate-900 font-mono text-[11px] sm:text-xs truncate">{forgotEmail}</strong>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setForgotStep(1);
+                          setError('');
+                          setSuccessMsg('');
+                        }}
+                        className="text-xs font-bold text-blue-600 hover:text-blue-800 cursor-pointer flex-shrink-0"
+                      >
+                        Change
+                      </button>
+                    </div>
+
+                    <FormField label="6-Digit Verification Code (OTP)" required helpText="Check your email inbox or spam folder">
+                      <Input
+                        type="text"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                        maxLength={6}
+                        value={otp}
+                        onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
+                        placeholder="• • • • • •"
+                        required
+                        className="text-center font-mono text-base sm:text-lg tracking-[0.25em] sm:tracking-[0.35em] font-bold text-blue-700 placeholder:tracking-normal placeholder:font-normal placeholder:text-slate-400"
+                      />
+                    </FormField>
+
+                    <div className="space-y-1">
+                      <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                        New Password <span className="text-rose-500">*</span>
+                      </label>
+                      <div className="relative">
+                        <Input
+                          type={showNewPassword ? 'text' : 'password'}
+                          value={newPassword}
+                          onChange={(e) => setNewPassword(e.target.value)}
+                          placeholder="At least 6 characters"
+                          required
+                          minLength={6}
+                          className="pr-10"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowNewPassword(!showNewPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 transition-colors p-1"
+                          tabIndex={-1}
+                        >
+                          {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                        Confirm New Password <span className="text-rose-500">*</span>
+                      </label>
+                      <div className="relative">
+                        <Input
+                          type={showConfirmPassword ? 'text' : 'password'}
+                          value={confirmPassword}
+                          onChange={(e) => setConfirmPassword(e.target.value)}
+                          placeholder="Re-enter new password"
+                          required
+                          minLength={6}
+                          className="pr-10"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 transition-colors p-1"
+                          tabIndex={-1}
+                        >
+                          {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        </button>
+                      </div>
+                    </div>
+
+                    <Button
+                      type="submit"
+                      variant="primary"
+                      size="lg"
+                      className="w-full font-bold shadow-md shadow-blue-500/20 mt-2"
+                      loading={loading}
+                    >
+                      <CheckCircle2 className="w-4 h-4 mr-2" /> Reset Password & Sign In
+                    </Button>
+
+                    <div className="text-center pt-2">
+                      <button
+                        type="button"
+                        disabled={loading}
+                        onClick={handleSendOtp}
+                        className="text-xs font-semibold text-blue-600 hover:text-blue-800 disabled:opacity-50 cursor-pointer"
+                      >
+                        Didn't receive the email? Resend OTP
+                      </button>
+                    </div>
+                  </form>
+                )}
+
+                <div className="text-center pt-3 sm:pt-4 border-t border-slate-100 mt-4 sm:mt-5">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setError('');
+                      setSuccessMsg('');
+                      setForgotStep(1);
+                      setMode('login');
+                    }}
+                    className="text-xs font-semibold text-slate-500 hover:text-slate-800 cursor-pointer"
+                  >
+                    Return to Sign In
+                  </button>
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
           {/* ========================================================================= */}
           {/* Registration from login is disabled - accounts created solely by admin */}
@@ -447,7 +526,7 @@ export default function LoginPage() {
                       />
                     </FormField>
 
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <FormField label="Username" required>
                         <Input
                           value={regForm.username}
@@ -478,7 +557,7 @@ export default function LoginPage() {
                       />
                     </FormField>
 
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <FormField label="Department" required>
                         <Input
                           value={regForm.department}
@@ -506,7 +585,7 @@ export default function LoginPage() {
                       />
                     </FormField>
 
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <FormField label="Password" required>
                         <div className="relative">
                           <Input
@@ -584,5 +663,6 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
-  );
+  </div>
+);
 }

@@ -1,11 +1,5 @@
 {
-  "/(auth)/login/page": "app/(auth)/login/page.js",
-  "/(dashboard)/audit-logs/page": "app/(dashboard)/audit-logs/page.js",
   "/(dashboard)/dashboard/page": "app/(dashboard)/dashboard/page.js",
-  "/(dashboard)/events/page": "app/(dashboard)/events/page.js",
   "/(dashboard)/expenses/page": "app/(dashboard)/expenses/page.js",
-  "/(dashboard)/income/page": "app/(dashboard)/income/page.js",
-  "/(dashboard)/sponsors/page": "app/(dashboard)/sponsors/page.js",
-  "/(dashboard)/users/page": "app/(dashboard)/users/page.js",
-  "/page": "app/page.js"
+  "/(dashboard)/notifications/page": "app/(dashboard)/notifications/page.js"
 }

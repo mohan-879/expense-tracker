@@ -528,7 +528,7 @@ function Navbar({ onToggleSidebar }) {
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                className: "flex items-center justify-center gap-3 sm:gap-4 md:gap-5 mx-1 sm:mx-4 text-center flex-1 min-w-0",
+                className: "flex items-center justify-center gap-2 sm:gap-4 md:gap-5 mx-1 sm:mx-4 text-center flex-1 min-w-0",
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("img", {
                         src: "/panimalar_logo.png",
@@ -543,7 +543,7 @@ function Navbar({ onToggleSidebar }) {
                         className: "flex flex-col items-center justify-center min-w-0",
                         children: [
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h1", {
-                                className: "text-sm sm:text-lg md:text-xl lg:text-2xl font-black tracking-wide sm:tracking-wider text-slate-900 uppercase leading-tight drop-shadow-2xs",
+                                className: "text-[10.5px] min-[360px]:text-[11px] min-[390px]:text-xs sm:text-lg md:text-xl lg:text-2xl font-black tracking-tight sm:tracking-wider text-slate-900 uppercase leading-tight drop-shadow-2xs whitespace-nowrap",
                                 children: "PANIMALAR ENGINEERING COLLEGE"
                             }, void 0, false, {
                                 fileName: "[project]/src/components/organisms/Navbar.js",
@@ -551,7 +551,7 @@ function Navbar({ onToggleSidebar }) {
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                className: "text-[11px] sm:text-xs md:text-sm lg:text-base font-extrabold text-blue-900 tracking-wider uppercase mt-1",
+                                className: "text-[10px] min-[360px]:text-[11px] sm:text-xs md:text-sm lg:text-base font-extrabold text-blue-900 tracking-wider uppercase mt-1 whitespace-nowrap",
                                 children: "JAI SAKTHI EDUCATIONAL TRUST"
                             }, void 0, false, {
                                 fileName: "[project]/src/components/organisms/Navbar.js",
@@ -561,7 +561,7 @@ function Navbar({ onToggleSidebar }) {
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                 className: "mt-1 sm:mt-1.5",
                                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                    className: "bg-gradient-to-r from-red-700 via-rose-700 to-red-800 text-white text-[8px] sm:text-[10px] md:text-xs font-black px-3 sm:px-4 py-0.5 sm:py-1 rounded-full shadow-xs tracking-widest uppercase inline-block border border-red-900/30",
+                                    className: "bg-gradient-to-r from-red-700 via-rose-700 to-red-800 text-white text-[8px] sm:text-[10px] md:text-xs font-black px-3 sm:px-4 py-0.5 sm:py-1 rounded-full shadow-xs tracking-widest uppercase inline-block border border-red-900/30 whitespace-nowrap",
                                     children: "AN AUTONOMOUS INSTITUTION"
                                 }, void 0, false, {
                                     fileName: "[project]/src/components/organisms/Navbar.js",

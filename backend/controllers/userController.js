@@ -5,7 +5,11 @@ const bcrypt = require('bcryptjs');
 const { successResponse, errorResponse, generateCode } = require('../utils/helpers');
 const { logAuditAction } = require('../services/auditService');
 const { sendNotification } = require('../services/notificationService');
-const { notifyUserApprovalStatusEmail } = require('../services/emailService');
+const {
+  notifyUserApprovalStatusEmail,
+  sendUserCredentialsEmail,
+  sendUserPasswordResetByAdminEmail,
+} = require('../services/emailService');
 
 // @desc    Get all users
 // @route   GET /api/users
@@ -125,7 +129,23 @@ const createUser = async (req, res, next) => {
       ipAddress: req.ip,
     });
 
-    return successResponse(res, 201, 'User created successfully', { user, member });
+    // Notify user via Email with their login credentials
+    try {
+      await sendUserCredentialsEmail({
+        to: user.email,
+        name: user.fullName,
+        username: user.username,
+        email: user.email,
+        password, // Plain-text password entered by Admin
+        role: user.role,
+        clubRole: user.clubRole,
+        department: user.department,
+      });
+    } catch (emailErr) {
+      console.error('[User Credentials Email Error]:', emailErr.message);
+    }
+
+    return successResponse(res, 201, 'User created successfully and credentials emailed to user', { user, member });
   } catch (error) {
     next(error);
   }
@@ -357,7 +377,20 @@ const resetPassword = async (req, res, next) => {
       ipAddress: req.ip,
     });
 
-    return successResponse(res, 200, `Password reset successfully for ${user.email}`);
+    // Notify user via Email with their new password
+    try {
+      await sendUserPasswordResetByAdminEmail({
+        to: user.email,
+        name: user.fullName,
+        email: user.email,
+        newPassword,
+        adminName: req.user.fullName,
+      });
+    } catch (emailErr) {
+      console.error('[Password Reset Email Error]:', emailErr.message);
+    }
+
+    return successResponse(res, 200, `Password reset successfully for ${user.email} and notification sent to their email`);
   } catch (error) {
     next(error);
   }

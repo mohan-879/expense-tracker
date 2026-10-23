@@ -1,0 +1,15 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/(dashboard)/layout,_N_T_/(dashboard)/approval-queue/layout,_N_T_/(dashboard)/approval-queue/page,_N_T_/approval-queue"
+  },
+  "routeCache": {
+    "key": "/route-cache/APP_PAGE/c717713da2b0972c7679c7f2e3668a4c2fffc76a4974c90fe6326572e2d6d63f/$/approval-queue",
+    "owner": {
+      "kind": "APP_PAGE",
+      "sourceRoute": "/(dashboard)/approval-queue/page"
+    },
+    "isFallback": false
+  }
+}

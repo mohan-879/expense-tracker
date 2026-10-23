@@ -113,21 +113,21 @@ export default function Navbar({ onToggleSidebar }) {
       </div>
 
       {/* Center: College Header Details - Expanded & Prominent */}
-      <div className="flex items-center justify-center gap-3 sm:gap-4 md:gap-5 mx-1 sm:mx-4 text-center flex-1 min-w-0">
+      <div className="flex items-center justify-center gap-2 sm:gap-4 md:gap-5 mx-1 sm:mx-4 text-center flex-1 min-w-0">
         <img
           src="/panimalar_logo.png"
           alt="Panimalar Engineering College Emblem"
           className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 object-contain flex-shrink-0 drop-shadow-md transition-transform hover:scale-105 duration-200"
         />
         <div className="flex flex-col items-center justify-center min-w-0">
-          <h1 className="text-sm sm:text-lg md:text-xl lg:text-2xl font-black tracking-wide sm:tracking-wider text-slate-900 uppercase leading-tight drop-shadow-2xs">
+          <h1 className="text-[10.5px] min-[360px]:text-[11px] min-[390px]:text-xs sm:text-lg md:text-xl lg:text-2xl font-black tracking-tight sm:tracking-wider text-slate-900 uppercase leading-tight drop-shadow-2xs whitespace-nowrap">
             PANIMALAR ENGINEERING COLLEGE
           </h1>
-          <p className="text-[11px] sm:text-xs md:text-sm lg:text-base font-extrabold text-blue-900 tracking-wider uppercase mt-1">
+          <p className="text-[10px] min-[360px]:text-[11px] sm:text-xs md:text-sm lg:text-base font-extrabold text-blue-900 tracking-wider uppercase mt-1 whitespace-nowrap">
             JAI SAKTHI EDUCATIONAL TRUST
           </p>
           <div className="mt-1 sm:mt-1.5">
-            <span className="bg-gradient-to-r from-red-700 via-rose-700 to-red-800 text-white text-[8px] sm:text-[10px] md:text-xs font-black px-3 sm:px-4 py-0.5 sm:py-1 rounded-full shadow-xs tracking-widest uppercase inline-block border border-red-900/30">
+            <span className="bg-gradient-to-r from-red-700 via-rose-700 to-red-800 text-white text-[8px] sm:text-[10px] md:text-xs font-black px-3 sm:px-4 py-0.5 sm:py-1 rounded-full shadow-xs tracking-widest uppercase inline-block border border-red-900/30 whitespace-nowrap">
               AN AUTONOMOUS INSTITUTION
             </span>
           </div>
