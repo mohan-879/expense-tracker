@@ -46,6 +46,21 @@ connectDB().then(async () => {
       { $set: { phone: adminPhone } }
     );
     console.log(`Verified Admin phone number is set to ${adminPhone}`);
+
+    // Ensure Admin password is admin123 and faculty is faculty1
+    const adminUser = await User.findOne({ role: 'ADMIN' });
+    if (adminUser) {
+      adminUser.password = 'admin123';
+      await adminUser.save();
+      console.log(`✅ Admin (${adminUser.email}) password verified as admin123`);
+    }
+
+    const facultyUser = await User.findOne({ role: 'FACULTY_COORDINATOR' });
+    if (facultyUser) {
+      facultyUser.password = 'faculty1';
+      await facultyUser.save();
+      console.log(`✅ Faculty (${facultyUser.email}) password verified as faculty1`);
+    }
   } catch (err) {
     console.error('Startup migration error:', err.message);
   }

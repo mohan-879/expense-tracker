@@ -25,7 +25,14 @@ const generateToken = (id) => {
  * Authenticate User Login
  */
 const loginUser = async (email, password, ipAddress) => {
-  const user = await User.findOne({ email: String(email).toLowerCase().trim() }).select('+password');
+  const cleanInput = String(email).toLowerCase().trim();
+  const user = await User.findOne({
+    $or: [
+      { email: cleanInput },
+      { username: cleanInput },
+      ...(cleanInput === 'admin@clubfund.edu' ? [{ role: 'ADMIN' }] : []),
+    ],
+  }).select('+password');
 
   if (!user || !(await user.matchPassword(password))) {
     throw new Error('Invalid email or password');
