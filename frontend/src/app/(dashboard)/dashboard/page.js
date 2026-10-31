@@ -238,7 +238,7 @@ export default function DashboardPage() {
                     {exp.receiptPath && (
                       <div className="pt-2 border-t border-slate-200/60 flex justify-end">
                         <a
-                          href={exp.receiptPath.startsWith('http') ? exp.receiptPath : `http://localhost:5000${exp.receiptPath}`}
+                          href={exp.receiptPath}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="inline-flex items-center text-[11px] font-bold text-blue-600 hover:text-blue-800"
@@ -286,7 +286,7 @@ export default function DashboardPage() {
                         <td className="px-6 py-4 text-right">
                           {exp.receiptPath ? (
                             <a
-                              href={exp.receiptPath.startsWith('http') ? exp.receiptPath : `http://localhost:5000${exp.receiptPath}`}
+                              href={exp.receiptPath}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="inline-flex items-center text-xs font-bold text-blue-600 hover:text-blue-800"

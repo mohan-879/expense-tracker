@@ -124,6 +124,9 @@ const authLimiter = rateLimit({
 app.use('/api/auth/login', authLimiter);
 
 // Serve Static Uploaded Files
+if (process.env.VERCEL) {
+  app.use('/uploads', express.static(path.join('/tmp', 'uploads')));
+}
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Mount API Routes

@@ -2,10 +2,22 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
-// Ensure directories exist
+// Base directory resolver for Vercel serverless (/tmp) or local filesystem
+const getUploadDir = (subDir = 'receipts') =>
+  process.env.VERCEL
+    ? path.join('/tmp', 'uploads', subDir)
+    : path.join(__dirname, '../uploads', subDir);
+
+const uploadDir = process.env.VERCEL
+  ? path.join('/tmp', 'uploads', 'receipts')
+  : path.join(__dirname, '../uploads/receipts');
+
+fs.mkdirSync(uploadDir, { recursive: true });
+
+// Ensure all upload directories exist
 const uploadDirs = ['receipts', 'payment_proofs', 'sponsor_logos'];
 uploadDirs.forEach((dir) => {
-  const dirPath = path.join(__dirname, '..', 'uploads', dir);
+  const dirPath = getUploadDir(dir);
   if (!fs.existsSync(dirPath)) {
     fs.mkdirSync(dirPath, { recursive: true });
   }
@@ -15,7 +27,10 @@ uploadDirs.forEach((dir) => {
 const createStorage = (subDir) => {
   return multer.diskStorage({
     destination: (req, file, cb) => {
-      const targetDir = path.join(__dirname, '..', 'uploads', subDir);
+      const targetDir = getUploadDir(subDir);
+      if (!fs.existsSync(targetDir)) {
+        fs.mkdirSync(targetDir, { recursive: true });
+      }
       cb(null, targetDir);
     },
     filename: (req, file, cb) => {
@@ -69,4 +84,6 @@ module.exports = {
   uploadReceipt,
   uploadPaymentProof,
   uploadSponsorLogo,
+  uploadDir,
+  getUploadDir,
 };

@@ -26,9 +26,46 @@ Whenever new modifications, bug fixes, or features are introduced to this codeba
 
 ## 🕒 Comprehensive Version History
 
+### [Version 1.3.8] – 2026-10-31 *(Latest Release)*
+
+#### 🎯 Summary of Changes
+- **Diagnosed and Resolved "Network Error" on Vercel Deployment**:
+  - **Root Cause 1 (Hardcoded / Insecure Port in Client)**: On Vercel, the site is served over HTTPS (`https://your-domain.vercel.app`). The client previously resolved API endpoints to `http://localhost:5000/api` or `http://<domain>:5000/api`. This triggered an immediate browser **Mixed Content (HTTPS -> HTTP)** security block and unreachable port 5000 error, presenting as `Network Error`.
+  - **Root Cause 2 (Vercel Routing)**: In [`vercel.json`](file:///e:/expense/vercel.json), public API routes are rewritten from `/api/(.*)` directly to the backend service. The frontend client must use relative `/api` on Vercel so all traffic stays on the same secure HTTPS domain without requiring port 5000 or CORS headers.
+  - **Root Cause 3 (Missing Cloud Environment Variables & MongoDB Atlas IP Whitelist)**: `.env` is gitignored. The backend service on Vercel requires environment variables (`MONGO_URI`, `JWT_SECRET`, etc.) configured in Vercel Project Settings, and MongoDB Atlas must allow network connections (`0.0.0.0/0`) from Vercel's serverless cloud IPs.
+- **Resilient API URL Configuration ([`api.js`](file:///e:/expense/frontend/src/services/api.js))**:
+  - Updated `getBaseURL` to automatically resolve to relative `/api` on Vercel, HTTPS, custom domains, and mobile devices, while falling back cleanly on localhost.
+  - Fixed hardcoded `http://localhost:5000` references in [`dashboard/page.js`](file:///e:/expense/frontend/src/app/(dashboard)/dashboard/page.js) so receipt and bill links open seamlessly in both production and development.
+- **Standardized Environment Templates**:
+  - Updated [`frontend/.env.example`](file:///e:/expense/frontend/.env.example) and [`frontend/.env`](file:///e:/expense/frontend/.env) to use `NEXT_PUBLIC_API_URL=/api`.
+  - Updated [`backend/.env.example`](file:///e:/expense/backend/.env.example) with all production variable names.
+- **Vercel Serverless File Upload Support**:
+  - Configured [`uploadMiddleware.js`](file:///e:/expense/backend/middleware/uploadMiddleware.js) to resolve upload destinations to `/tmp/uploads/...` when running in the read-only Vercel serverless environment (`process.env.VERCEL`), preventing `EROFS: read-only file system` errors.
+  - Configured static route in [`server.js`](file:///e:/expense/backend/server.js) to serve uploads from `/tmp/uploads` on Vercel with local fallback.
+- **One-Click Startup Script ([`start-dev.bat`](file:///e:/expense/start-dev.bat))**:
+  - Added a root batch utility script (`start-dev.bat`) for local development that boots both backend (port 5000) and frontend (port 3000) in separate console windows.
+
+#### 🛠️ Key Modifications & Components Affected
+- **Frontend**:
+  - [`frontend/src/services/api.js`](file:///e:/expense/frontend/src/services/api.js): Bulletproof `getBaseURL()` defaulting to `/api` on non-localhost/HTTPS environments.
+  - [`frontend/src/app/(auth)/login/page.js`](file:///e:/expense/frontend/src/app/(auth)/login/page.js): Added descriptive connection failure messages in `handleSubmit` and `handleSendOtp`.
+  - [`frontend/src/app/(dashboard)/dashboard/page.js`](file:///e:/expense/frontend/src/app/(dashboard)/dashboard/page.js): Removed hardcoded `localhost:5000` prefix from receipt URLs.
+  - [`frontend/.env.example`](file:///e:/expense/frontend/.env.example): Set `NEXT_PUBLIC_API_URL=/api`.
+- **Backend**:
+  - [`backend/middleware/uploadMiddleware.js`](file:///e:/expense/backend/middleware/uploadMiddleware.js): Added `process.env.VERCEL` check routing receipt, proof, and logo uploads to `/tmp/uploads`.
+  - [`backend/server.js`](file:///e:/expense/backend/server.js): Added `/tmp/uploads` static serving on Vercel.
+  - [`backend/.env.example`](file:///e:/expense/backend/.env.example): Documented all production environment variables for cloud deployment.
+- **Root Workspace**:
+  - [`start-dev.bat`](file:///e:/expense/start-dev.bat): Single-click launch script for local development.
+
+#### 🧪 Verification & Testing
+- Executed Next.js production build (`npm run build`) in `frontend/` — completed successfully with 0 errors.
+- Executed `Invoke-RestMethod` against `POST http://localhost:5000/api/auth/login` and `POST http://localhost:3000/api/auth/login` with `dataxscape@gmail.com` / `admin123`.
+- Verified `200 OK` response with JWT token generation and role verification (`ADMIN`).
+
 ---
 
-### [Version 1.3.7] – 2026-10-22 *(Latest Release)*
+### [Version 1.3.7] – 2026-10-22
 
 #### 🎯 Summary of Changes
 - **Automated Login Credentials Email on User Creation**:

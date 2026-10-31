@@ -72,7 +72,11 @@ export default function LoginPage() {
       await login(email, password);
       router.push('/dashboard');
     } catch (err) {
-      setError(err.response?.data?.message || err.message || 'Login failed. Please check your credentials.');
+      if (!err.response) {
+        setError('Network Error: Unable to reach the backend server. Please verify the Express backend is running on port 5000.');
+      } else {
+        setError(err.response?.data?.message || err.message || 'Login failed. Please check your credentials.');
+      }
       setLoading(false);
     }
   };
@@ -93,7 +97,11 @@ export default function LoginPage() {
         );
       }
     } catch (err) {
-      setError(err.response?.data?.message || err.message || 'Failed to send OTP code. Please verify your email.');
+      if (!err.response) {
+        setError('Network Error: Unable to reach the backend server. Please verify the Express backend is running on port 5000.');
+      } else {
+        setError(err.response?.data?.message || err.message || 'Failed to send OTP code. Please verify your email.');
+      }
     } finally {
       setLoading(false);
     }
