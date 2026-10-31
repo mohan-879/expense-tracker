@@ -22,10 +22,11 @@ const nextConfig = {
       process.env.NEXT_PUBLIC_API_URL ||
       'http://localhost:5000';
     // Clean target URL (strip trailing /api and trailing slashes)
-    const backendUrl = rawBackend
+    const cleaned = rawBackend
       .trim()
       .replace(/\/api\/?$/, '')
       .replace(/\/$/, '');
+    const backendUrl = cleaned || 'http://localhost:5000';
 
     return [
       {
