@@ -84,11 +84,21 @@ const handleDisconnection = () => {
   }
 };
 
-const connectDB = async (retries = 5, delay = 3000) => {
+const connectDB = async (
+  retries = process.env.VERCEL ? 2 : 5,
+  delay = process.env.VERCEL ? 1000 : 3000
+) => {
+  // Re-use active connection in serverless warm lambda instances
+  if (mongoose.connection.readyState === 1) {
+    return mongoose.connection;
+  }
+
   const mongoUri = process.env.MONGO_URI;
 
   if (!mongoUri) {
-    throw new Error('MONGO_URI is not defined in environment variables.');
+    const errorMsg = 'MONGO_URI is not defined in environment variables. Please configure MONGO_URI in your Vercel Project Settings.';
+    console.error(`❌ [MongoDB] ${errorMsg}`);
+    throw new Error(errorMsg);
   }
 
   setupEventHandlers();
@@ -106,8 +116,8 @@ const connectDB = async (retries = 5, delay = 3000) => {
         await new Promise((resolve) => setTimeout(resolve, delay));
       } else {
         console.error('💥 [MongoDB] All connection attempts failed. Check network or MongoDB Atlas status.');
-        // Allow the app to stay alive so it can retry or let developers diagnose
         handleDisconnection();
+        throw new Error(`Failed to connect to MongoDB: ${error.message}. Please verify MongoDB Atlas IP Whitelist (0.0.0.0/0) and credentials.`);
       }
     }
   }

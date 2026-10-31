@@ -16,55 +16,59 @@ const errorHandler = require('./middleware/errorHandler');
 dotenv.config();
 
 // Connect to Database
-connectDB().then(async () => {
-  try {
-    const Expense = require('./models/Expense');
-    const User = require('./models/User');
+connectDB()
+  .then(async () => {
+    try {
+      const Expense = require('./models/Expense');
+      const User = require('./models/User');
 
-    const leadershipUsers = await User.find({
-      role: { $in: ['ADMIN', 'FACULTY_COORDINATOR', 'TREASURER'] },
-    }).lean();
-    const leadershipUserIds = leadershipUsers.map((u) => u._id);
+      const leadershipUsers = await User.find({
+        role: { $in: ['ADMIN', 'FACULTY_COORDINATOR', 'TREASURER'] },
+      }).lean();
+      const leadershipUserIds = leadershipUsers.map((u) => u._id);
 
-    const pendingLeadershipExpenses = await Expense.find({
-      user: { $in: leadershipUserIds },
-      status: 'PENDING_TREASURER',
-    });
+      const pendingLeadershipExpenses = await Expense.find({
+        user: { $in: leadershipUserIds },
+        status: 'PENDING_TREASURER',
+      });
 
-    for (const exp of pendingLeadershipExpenses) {
-      exp.status = 'TREASURER_APPROVED';
-      exp.approvedAmount = exp.amount;
-      exp.approvedBy = exp.user;
-      exp.approvedAt = exp.createdAt || new Date();
-      await exp.save();
+      for (const exp of pendingLeadershipExpenses) {
+        exp.status = 'TREASURER_APPROVED';
+        exp.approvedAmount = exp.amount;
+        exp.approvedBy = exp.user;
+        exp.approvedAt = exp.createdAt || new Date();
+        await exp.save();
+      }
+
+      // Ensure Admin users have designated phone number (9087516907)
+      const adminPhone = process.env.ADMIN_PHONE || '9087516907';
+      await User.updateMany(
+        { role: 'ADMIN', $or: [{ phone: { $exists: false } }, { phone: '' }, { phone: '+91 9876543210' }] },
+        { $set: { phone: adminPhone } }
+      );
+      console.log(`Verified Admin phone number is set to ${adminPhone}`);
+
+      // Ensure Admin password is admin123 and faculty is faculty1
+      const adminUser = await User.findOne({ role: 'ADMIN' });
+      if (adminUser) {
+        adminUser.password = 'admin123';
+        await adminUser.save();
+        console.log(`✅ Admin (${adminUser.email}) password verified as admin123`);
+      }
+
+      const facultyUser = await User.findOne({ role: 'FACULTY_COORDINATOR' });
+      if (facultyUser) {
+        facultyUser.password = 'faculty1';
+        await facultyUser.save();
+        console.log(`✅ Faculty (${facultyUser.email}) password verified as faculty1`);
+      }
+    } catch (err) {
+      console.error('Startup migration error:', err.message);
     }
-
-    // Ensure Admin users have designated phone number (9087516907)
-    const adminPhone = process.env.ADMIN_PHONE || '9087516907';
-    await User.updateMany(
-      { role: 'ADMIN', $or: [{ phone: { $exists: false } }, { phone: '' }, { phone: '+91 9876543210' }] },
-      { $set: { phone: adminPhone } }
-    );
-    console.log(`Verified Admin phone number is set to ${adminPhone}`);
-
-    // Ensure Admin password is admin123 and faculty is faculty1
-    const adminUser = await User.findOne({ role: 'ADMIN' });
-    if (adminUser) {
-      adminUser.password = 'admin123';
-      await adminUser.save();
-      console.log(`✅ Admin (${adminUser.email}) password verified as admin123`);
-    }
-
-    const facultyUser = await User.findOne({ role: 'FACULTY_COORDINATOR' });
-    if (facultyUser) {
-      facultyUser.password = 'faculty1';
-      await facultyUser.save();
-      console.log(`✅ Faculty (${facultyUser.email}) password verified as faculty1`);
-    }
-  } catch (err) {
-    console.error('Startup migration error:', err.message);
-  }
-});
+  })
+  .catch((err) => {
+    console.warn('Initial MongoDB connection deferred:', err.message);
+  });
 
 const app = express();
 
@@ -129,6 +133,35 @@ if (process.env.VERCEL) {
 }
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// Ensure database connection before processing API routes (vital for Vercel serverless)
+app.use(async (req, res, next) => {
+  if (req.path === '/' || req.path === '/api/health' || req.path.startsWith('/uploads')) {
+    return next();
+  }
+  if (mongoose.connection.readyState !== 1) {
+    try {
+      await connectDB();
+    } catch (err) {
+      console.error('Request blocked - Database connection unavailable:', err.message);
+      return res.status(503).json({
+        success: false,
+        message: 'Database connection unavailable. Please ensure MONGO_URI is configured in Vercel Environment Variables and MongoDB Atlas allows 0.0.0.0/0.',
+        error: err.message,
+      });
+    }
+  }
+  next();
+});
+
+// Welcome / Root Status endpoint
+app.get('/', (req, res) => {
+  res.json({
+    success: true,
+    message: 'ClubFund Backend API is active',
+    health: '/api/health',
+  });
+});
+
 // Mount API Routes
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/users', require('./routes/userRoutes'));
@@ -170,9 +203,11 @@ app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
-const server = app.listen(PORT, () => {
-  console.log(`ClubFund Backend Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
-});
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`ClubFund Backend Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
+  });
+}
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (err) => {

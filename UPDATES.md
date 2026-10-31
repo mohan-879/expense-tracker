@@ -42,18 +42,28 @@ Whenever new modifications, bug fixes, or features are introduced to this codeba
 - **Vercel Serverless File Upload Support**:
   - Configured [`uploadMiddleware.js`](file:///e:/expense/backend/middleware/uploadMiddleware.js) to resolve upload destinations to `/tmp/uploads/...` when running in the read-only Vercel serverless environment (`process.env.VERCEL`), preventing `EROFS: read-only file system` errors.
   - Configured static route in [`server.js`](file:///e:/expense/backend/server.js) to serve uploads from `/tmp/uploads` on Vercel with local fallback.
+- **Vercel Serverless Function & Express Configuration**:
+  - Created [`backend/vercel.json`](file:///e:/expense/backend/vercel.json) instructing Vercel to compile `server.js` using `@vercel/node` and route all endpoints to it.
+  - Wrapped `app.listen()` in `!process.env.VERCEL` to prevent serverless handler conflicts.
+  - Added request-level MongoDB connection guard middleware in [`backend/server.js`](file:///e:/expense/backend/server.js) and optimized [`backend/config/db.js`](file:///e:/expense/backend/config/db.js) with connection caching and fail-fast timeouts to eliminate `500: INTERNAL_SERVER_ERROR`.
+  - Added root `/` welcome endpoint in `server.js` for instant deployment verification.
+- **Dynamic Proxy Rewrites in Next.js**:
+  - Updated [`frontend/next.config.js`](file:///e:/expense/frontend/next.config.js) to dynamically route `/api/:path*` to `BACKEND_URL` or `NEXT_PUBLIC_API_URL` when provided.
 - **One-Click Startup Script ([`start-dev.bat`](file:///e:/expense/start-dev.bat))**:
   - Added a root batch utility script (`start-dev.bat`) for local development that boots both backend (port 5000) and frontend (port 3000) in separate console windows.
 
 #### 🛠️ Key Modifications & Components Affected
 - **Frontend**:
+  - [`frontend/next.config.js`](file:///e:/expense/frontend/next.config.js): Added dynamic proxy rewrites targeting backend service.
   - [`frontend/src/services/api.js`](file:///e:/expense/frontend/src/services/api.js): Bulletproof `getBaseURL()` defaulting to `/api` on non-localhost/HTTPS environments.
   - [`frontend/src/app/(auth)/login/page.js`](file:///e:/expense/frontend/src/app/(auth)/login/page.js): Added descriptive connection failure messages in `handleSubmit` and `handleSendOtp`.
   - [`frontend/src/app/(dashboard)/dashboard/page.js`](file:///e:/expense/frontend/src/app/(dashboard)/dashboard/page.js): Removed hardcoded `localhost:5000` prefix from receipt URLs.
   - [`frontend/.env.example`](file:///e:/expense/frontend/.env.example): Set `NEXT_PUBLIC_API_URL=/api`.
 - **Backend**:
+  - [`backend/vercel.json`](file:///e:/expense/backend/vercel.json): Vercel Serverless build and route definition.
+  - [`backend/server.js`](file:///e:/expense/backend/server.js): Serverless DB guard middleware, root `/` route, conditional `app.listen()`.
+  - [`backend/config/db.js`](file:///e:/expense/backend/config/db.js): Reused connection pooling and serverless fail-fast error handling.
   - [`backend/middleware/uploadMiddleware.js`](file:///e:/expense/backend/middleware/uploadMiddleware.js): Added `process.env.VERCEL` check routing receipt, proof, and logo uploads to `/tmp/uploads`.
-  - [`backend/server.js`](file:///e:/expense/backend/server.js): Added `/tmp/uploads` static serving on Vercel.
   - [`backend/.env.example`](file:///e:/expense/backend/.env.example): Documented all production environment variables for cloud deployment.
 - **Root Workspace**:
   - [`start-dev.bat`](file:///e:/expense/start-dev.bat): Single-click launch script for local development.
