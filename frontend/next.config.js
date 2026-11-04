@@ -30,7 +30,7 @@ const nextConfig = {
     // In production on Vercel, default to the live deployed backend; on localhost default to 5000
     const defaultBackend =
       process.env.NODE_ENV === 'production'
-        ? 'https://expense-tracker-backend-navy-eight.vercel.app'
+        ? 'https://expense-tracker-orcin-three.vercel.app'
         : 'http://localhost:5000';
 
     const backendUrl = cleaned || defaultBackend;
