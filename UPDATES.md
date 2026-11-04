@@ -26,7 +26,24 @@ Whenever new modifications, bug fixes, or features are introduced to this codeba
 
 ## 🕒 Comprehensive Version History
 
-### [Version 1.3.8] – 2026-10-31 *(Latest Release)*
+### [Version 1.3.9] – 2026-11-02 *(Latest Release)*
+
+#### 🎯 Summary of Changes
+- **Configured Zero-Config Production Fallback for Vercel Deployment**:
+  - Updated [`frontend/next.config.js`](file:///e:/expense/frontend/next.config.js) to automatically route `/api/:path*` and `/uploads/:path*` to the active live production backend (`https://expense-tracker-backend-navy-eight.vercel.app`) during production builds when environment variables are unset or using relative `/api`.
+  - Maintained local development proxy routing to `http://localhost:5000` when running locally (`NODE_ENV !== 'production'`).
+  - Verified static generation and complete Next.js compilation (19/19 pages built with 0 errors).
+
+#### 🛠️ Key Modifications & Components Affected
+- **Frontend**:
+  - [`frontend/next.config.js`](file:///e:/expense/frontend/next.config.js): Added intelligent environment-aware proxy destination fallback.
+
+#### 🧪 Verification & Testing
+- Executed `npm run build` in `frontend/`: 100% successful static compilation and page trace generation.
+
+---
+
+### [Version 1.3.8] – 2026-10-31
 
 #### 🎯 Summary of Changes
 - **Diagnosed and Resolved "Network Error" on Vercel Deployment**:

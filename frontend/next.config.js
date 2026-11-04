@@ -20,13 +20,20 @@ const nextConfig = {
     const rawBackend =
       process.env.BACKEND_URL ||
       process.env.NEXT_PUBLIC_API_URL ||
-      'http://localhost:5000';
+      '';
     // Clean target URL (strip trailing /api and trailing slashes)
     const cleaned = rawBackend
       .trim()
       .replace(/\/api\/?$/, '')
       .replace(/\/$/, '');
-    const backendUrl = cleaned || 'http://localhost:5000';
+
+    // In production on Vercel, default to the live deployed backend; on localhost default to 5000
+    const defaultBackend =
+      process.env.NODE_ENV === 'production'
+        ? 'https://expense-tracker-backend-navy-eight.vercel.app'
+        : 'http://localhost:5000';
+
+    const backendUrl = cleaned || defaultBackend;
 
     return [
       {
